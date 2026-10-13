@@ -1,0 +1,16 @@
+VigyanYantra Student Portal
+============================
+
+Added:
+- Student Login using Student ID or email + password
+- Student Sign Up
+- Automatic IDs ST0001, ST0002, ...
+- Persistent demo accounts using browser localStorage
+- Student dashboard
+- Empty course state until courses are published/enrolled
+- Logout
+
+Open student-portal.html in a browser to test the student flow.
+
+IMPORTANT:
+This is a front-end demo authentication system. Passwords are stored in browser localStorage and are NOT suitable for production. For a real deployment, connect signup/login to a secure backend with hashed passwords, sessions/tokens, email verification, password reset, and server-side authorization.

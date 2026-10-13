@@ -1,0 +1,351 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VigyanYantra Portal</title><link rel="stylesheet" href="styles.css"></head><body><div id="app"></div><script src="app.js"></script>
+
+
+
+<!-- VIGYANYANTRA STUDENT PORTAL START -->
+<style>
+.vy-student-entry{
+  display:inline-flex!important;align-items:center;justify-content:center;gap:8px;
+  text-decoration:none!important;cursor:pointer
+}
+.vy-student-overlay{
+  position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;
+  padding:24px;background:rgba(8,25,43,.72);backdrop-filter:blur(7px)
+}
+.vy-student-overlay.open{display:flex}
+.vy-student-shell{
+  width:min(960px,100%);max-height:92vh;overflow:auto;position:relative;
+  border-radius:24px;padding:0;
+  background:linear-gradient(135deg,#fffdf7 0%,#f4ead2 48%,#e9d4a4 100%);
+  border:1px solid rgba(145,106,37,.30);
+  box-shadow:0 28px 90px rgba(0,0,0,.35)
+}
+.vy-student-top{
+  padding:28px 32px 22px;text-align:center;
+  border-bottom:1px solid rgba(145,106,37,.22)
+}
+.vy-student-emblem{
+  width:58px;height:58px;margin:0 auto 10px;border-radius:50%;
+  display:grid;place-items:center;font-size:28px;
+  background:radial-gradient(circle,#f8e7b5,#bd8b2e);
+  color:#3e2910;border:2px solid rgba(95,61,13,.45)
+}
+.vy-student-top h2{margin:0;color:#4a3113;letter-spacing:.5px}
+.vy-student-top p{margin:7px 0 0;color:#745b37}
+.vy-student-close{
+  position:absolute;right:18px;top:16px;width:38px;height:38px;border-radius:50%;
+  border:1px solid rgba(94,61,17,.25);background:rgba(255,255,255,.58);
+  color:#4a3113;font-size:24px;cursor:pointer
+}
+.vy-student-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:26px}
+.vy-auth-card{
+  background:rgba(255,252,244,.84);border:1px solid rgba(145,106,37,.24);
+  border-radius:18px;padding:24px;box-shadow:0 8px 25px rgba(87,58,19,.08)
+}
+.vy-auth-card h3{margin:0 0 16px;color:#4a3113}
+.vy-field{margin:12px 0}.vy-field label{display:block;font-size:12px;font-weight:800;color:#62491f;margin-bottom:6px}
+.vy-field input{
+  width:100%;padding:12px 13px;box-sizing:border-box;border-radius:10px;
+  border:1px solid #c9b487;background:#fffdf8;color:#382812;outline:none
+}
+.vy-field input:focus{border-color:#a97720;box-shadow:0 0 0 3px rgba(169,119,32,.12)}
+.vy-auth-btn{
+  width:100%;margin-top:8px;padding:12px;border-radius:10px;border:1px solid #765017;
+  background:linear-gradient(180deg,#d7ad55,#a87822);color:#fffdf5;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 12px rgba(111,73,14,.20)
+}
+.vy-auth-btn.signup{background:linear-gradient(180deg,#6d8b61,#4c6842);border-color:#3c5635}
+.vy-msg{display:none;margin-top:12px;padding:10px;border-radius:9px;font-size:13px}
+.vy-msg.error{background:#fff0ed;color:#9a3427}.vy-msg.ok{background:#edf7e9;color:#3d6334}
+.vy-dashboard{display:none;padding:28px 32px 34px}
+.vy-dashbar{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.vy-dashbar h3{margin:0;color:#4a3113}.vy-id{color:#745b37;font-size:13px}
+.vy-logout{border:1px solid #a9946b;background:#fff8e9;color:#4a3113;border-radius:9px;padding:9px 14px;font-weight:800;cursor:pointer}
+.vy-empty{margin-top:22px;padding:40px;text-align:center;border:1px dashed #b8a274;border-radius:16px;background:rgba(255,253,247,.6);color:#745b37}
+.vy-empty h3{color:#4a3113;margin-top:0}
+.vy-course-list{margin-top:22px;display:grid;gap:12px;text-align:left}
+.vy-course-card{padding:16px;border:1px solid rgba(145,106,37,.22);border-radius:14px;background:rgba(255,253,247,.78)}
+.vy-course-card h4{margin:0 0 5px;color:#4a3113}
+.vy-course-card p{margin:5px 0 12px;color:#745b37;font-size:13px}
+.vy-course-actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:700px){.vy-student-grid{grid-template-columns:1fr;padding:18px}.vy-student-top{padding:25px 22px}.vy-dashboard{padding:24px 20px}}
+</style>
+
+<div id="vyStudentOverlay" class="vy-student-overlay" aria-hidden="true">
+  <div class="vy-student-shell">
+    <button id="vyStudentClose" class="vy-student-close" aria-label="Close">×</button>
+    <div class="vy-student-top">
+      <div class="vy-student-emblem">⚙</div>
+      <h2>VigyanYantra Student Portal</h2>
+      <p>Tradition Fuels Tomorrow · Learn • Explore • Build</p>
+    </div>
+
+    <div id="vyStudentAuth" class="vy-student-grid">
+      <div class="vy-auth-card">
+        <h3>Student Login</h3>
+        <form id="vyLoginForm">
+          <div class="vy-field"><label>Student ID or Email</label><input id="vyLoginId" required placeholder="ST0001 or email@example.com"></div>
+          <div class="vy-field"><label>Password</label><input id="vyLoginPass" type="password" required placeholder="Enter password"></div>
+          <button class="vy-auth-btn" type="submit">Enter Student Portal</button>
+        </form>
+        <div id="vyLoginMsg" class="vy-msg error"></div>
+      </div>
+
+      <div class="vy-auth-card">
+        <h3>Create Student Account</h3>
+        <form id="vySignupForm">
+          <div class="vy-field"><label>Full Name</label><input id="vyName" required></div>
+          <div class="vy-field"><label>Email</label><input id="vyEmail" type="email" required></div>
+          <div class="vy-field"><label>Mobile Number</label><input id="vyMobile" required></div>
+          <div class="vy-field"><label>Password</label><input id="vyPass" type="password" minlength="6" required></div>
+          <div class="vy-field"><label>Confirm Password</label><input id="vyConfirm" type="password" minlength="6" required></div>
+          <button class="vy-auth-btn signup" type="submit">Create Student Account</button>
+        </form>
+        <div id="vySignupMsg" class="vy-msg ok"></div>
+      </div>
+    </div>
+
+    <div id="vyDashboard" class="vy-dashboard">
+      <div class="vy-dashbar">
+        <div>
+          <h3>Welcome, <span id="vyDashName"></span> 👋</h3>
+          <div class="vy-id">Student ID: <strong id="vyDashId"></strong></div>
+        </div>
+        <button id="vyLogout" class="vy-logout">Logout</button>
+      </div>
+      <div id="vyCourseArea" class="vy-empty">
+        <h3>No courses enrolled yet</h3>
+        <p>Your courses will appear here after they are published and enrolled.</p>
+        <button id="vyEnrollNow" class="vy-auth-btn" type="button" style="max-width:220px;margin:16px auto 0;display:block;">Enroll Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KEY="vigyanyantra_students_v1", CURRENT="vigyanyantra_current";
+  const $=id=>document.getElementById(id);
+  const list=()=>JSON.parse(localStorage.getItem(KEY)||"[]");
+  const studentSave=x=>localStorage.setItem(KEY,JSON.stringify(x));
+  function nextId(){
+    const a=list();
+    const max=a.reduce((m,s)=>Math.max(m,parseInt(String(s.id||"ST0000").replace("ST",""))||0),0);
+    return "ST"+String(max+1).padStart(4,"0");
+  }
+  function openPortal(){
+    $("vyStudentOverlay").classList.add("open");
+    $("vyStudentOverlay").setAttribute("aria-hidden","false");
+  }
+  function closePortal(){
+    $("vyStudentOverlay").classList.remove("open");
+    $("vyStudentOverlay").setAttribute("aria-hidden","true");
+  }
+  // Expose the student portal opener globally so buttons rendered by app.js can open it.
+  window.openStudentPortal = openPortal;
+  function resetAuth(){
+    $("vyStudentAuth").style.display="grid";
+    $("vyDashboard").style.display="none";
+  }
+
+  // Add the entry button into the site's existing navigation/header without changing
+  // the existing theme. If a nav exists, place it at the end; otherwise create a
+  // compact fixed-position button matching the project's gold/brown visual language.
+  const nav=document.querySelector("nav");
+  const candidates=document.querySelectorAll("header a, nav a, .nav a, .navbar a");
+  let host=nav || (candidates.length ? candidates[0].parentElement : null);
+  if(host && !document.getElementById("vyStudentEntry")){
+    const b=document.createElement("a");
+    b.id="vyStudentEntry"; b.href="#student-portal"; b.className="vy-student-entry";
+    b.textContent="Student Login";
+    b.style.cssText="margin-left:10px;padding:9px 15px;border-radius:999px;background:linear-gradient(180deg,#d7ad55,#a87822);border:1px solid #765017;color:#fffdf5;font-weight:800;font-size:14px;box-shadow:0 4px 12px rgba(80,52,12,.18);";
+    b.addEventListener("click",e=>{e.preventDefault();openPortal();});
+    host.appendChild(b);
+  } else if(!document.getElementById("vyStudentEntry")){
+    const b=document.createElement("button");
+    b.id="vyStudentEntry"; b.className="vy-student-entry"; b.textContent="Student Login";
+    b.style.cssText="position:fixed;right:22px;bottom:22px;z-index:9998;padding:12px 18px;border-radius:999px;background:linear-gradient(180deg,#d7ad55,#a87822);border:1px solid #765017;color:#fffdf5;font-weight:800;box-shadow:0 8px 22px rgba(80,52,12,.25);";
+    document.body.appendChild(b);
+    b.addEventListener("click",openPortal);
+  }
+
+  $("vyStudentClose").addEventListener("click",closePortal);
+  $("vyStudentOverlay").addEventListener("click",e=>{if(e.target===$("vyStudentOverlay"))closePortal()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")closePortal()});
+
+  function syncCurrentStudent(s){
+    window.__vyStudent=s;
+    try{
+      if(typeof S!=="undefined"){
+        S.currentStudent=s;
+        localStorage.setItem("vy_state",JSON.stringify(S));
+      }
+    }catch(err){}
+  }
+
+  function showCourseCatalog(){
+    const area=$("vyCourseArea");
+    const courses=(typeof S!=="undefined" && Array.isArray(S.courses)) ? S.courses : [];
+    if(!courses.length){
+      area.className="vy-empty";
+      area.innerHTML=`<h3>No courses available yet</h3><p>Courses published by the Founder or staff will appear here.</p><button id="vyBackToDash" class="vy-auth-btn" type="button" style="max-width:220px;margin:16px auto 0;display:block;">Back to Dashboard</button>`;
+      $("vyBackToDash").onclick=()=>showDash(window.__vyStudent);
+      return;
+    }
+    const s=window.__vyStudent || list().find(x=>x.id===localStorage.getItem(CURRENT));
+    const enrolled=(s?.enrollments||[]);
+    area.className="";
+    area.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h3 style="margin:0;color:#4a3113">All Courses</h3><p style="margin:6px 0 0;color:#745b37">Choose a course to enroll and access its content.</p></div><button id="vyBackToDash" class="vy-logout" type="button">← Dashboard</button></div><div class="vy-course-list">${courses.map(c=>{
+      const isEnrolled=enrolled.includes(c.id);
+      return `<article class="vy-course-card"><h4>${escapeHtml(c.title)}</h4><div style="font-size:12px;color:#8a6d3b;font-weight:800">${escapeHtml(c.category||"Course")} · ${Number(c.price)||0 ? "₹"+Number(c.price).toLocaleString("en-IN") : "Free"}</div><p>${escapeHtml(c.description||"VigyanYantra course.")}</p><div class="vy-course-actions"><button class="vy-auth-btn" type="button" data-course="${escapeHtml(c.id)}" data-action="${isEnrolled?"view":"enroll"}" style="width:auto;margin:0;padding:9px 14px">${isEnrolled?"View Course":"Enroll Now"}</button></div></article>`;
+    }).join("")}</div>`;
+    $("vyBackToDash").onclick=()=>showDash(s);
+    area.querySelectorAll("button[data-course]").forEach(btn=>btn.addEventListener("click",()=>{
+      const id=btn.dataset.course;
+      const student=list().find(x=>x.id===localStorage.getItem(CURRENT));
+      const course=courses.find(c=>c.id===id);
+      if(!student||!course)return;
+      student.enrollments=student.enrollments||[];
+      if(!student.enrollments.includes(id)) student.enrollments.push(id);
+      studentSave(list());
+      syncCurrentStudent(student);
+      if(typeof go==="function"){ closePortal(); go("student-course:"+id); }
+      else showCourseCatalog();
+    }));
+  }
+
+  function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+
+  function showDash(s){
+    window.__vyStudent=s;
+    syncCurrentStudent(s);
+    $("vyStudentAuth").style.display="none";
+    $("vyDashboard").style.display="block";
+    $("vyDashName").textContent=s.name;
+    $("vyDashId").textContent=s.id;
+    const area=$("vyCourseArea");
+    const enrolled=s.enrollments||[];
+    if(enrolled.length){
+      const courses=(typeof S!=="undefined" && Array.isArray(S.courses))?S.courses:[];
+      area.className="";
+      area.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h3 style="margin:0;color:#4a3113">My Courses</h3><p style="margin:6px 0 0;color:#745b37">Your enrolled courses.</p></div><button id="vyEnrollMore" class="vy-auth-btn" type="button" style="width:auto;margin:0;padding:9px 14px">Enroll Courses</button></div><div class="vy-course-list">${enrolled.map(id=>courses.find(c=>c.id===id)).filter(Boolean).map(c=>`<article class="vy-course-card"><h4>${escapeHtml(c.title)}</h4><p>${escapeHtml(c.description||"VigyanYantra course.")}</p><button class="vy-auth-btn" type="button" data-view="${escapeHtml(c.id)}" style="width:auto;margin:0;padding:9px 14px">View Course</button></article>`).join("")}</div>`;
+      $("vyEnrollMore").onclick=showCourseCatalog;
+      area.querySelectorAll("button[data-view]").forEach(btn=>btn.onclick=()=>{syncCurrentStudent(s);closePortal();if(typeof go==="function")go("student-course:"+btn.dataset.view)});
+    }else{
+      area.className="vy-empty";
+      area.innerHTML=`<h3>No courses enrolled yet</h3><p>Your courses will appear here after they are published and enrolled.</p><button id="vyEnrollNow" class="vy-auth-btn" type="button" style="max-width:220px;margin:16px auto 0;display:block;">Enroll Now</button>`;
+      $("vyEnrollNow").onclick=showCourseCatalog;
+    }
+  }
+
+  $("vySignupForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const name=$("vyName").value.trim(), email=$("vyEmail").value.trim(), mobile=$("vyMobile").value.trim();
+    const pass=$("vyPass").value, confirm=$("vyConfirm").value;
+    if(pass!==confirm){$("vySignupMsg").textContent="Passwords do not match."; $("vySignupMsg").style.display="block"; return;}
+    let a=list();
+    if(a.some(s=>s.email.toLowerCase()===email.toLowerCase())){
+      $("vySignupMsg").textContent="An account with this email already exists."; $("vySignupMsg").style.display="block"; return;
+    }
+    const s={id:nextId(),name,email,mobile,password:pass};
+    a.push(s); studentSave(a); localStorage.setItem(CURRENT,s.id); showDash(s);
+  });
+
+  $("vyLoginForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const q=$("vyLoginId").value.trim().toLowerCase(), p=$("vyLoginPass").value;
+    const s=list().find(x=>(x.id.toLowerCase()===q||x.email.toLowerCase()===q)&&x.password===p);
+    if(!s){$("vyLoginMsg").textContent="Invalid Student ID/email or password."; $("vyLoginMsg").style.display="block"; return;}
+    localStorage.setItem(CURRENT,s.id); showDash(s);
+  });
+
+  $("vyLogout").addEventListener("click",()=>{
+    localStorage.removeItem(CURRENT);
+    try{if(typeof S!=="undefined"){S.currentStudent=null;if(typeof save==="function")save();}}catch(err){}
+    window.__vyStudent=null;
+    resetAuth();
+  });
+
+  const current=localStorage.getItem(CURRENT);
+  if(current){const s=list().find(x=>x.id===current); if(s) showDash(s);}
+})();
+</script>
+<!-- VIGYANYANTRA STUDENT PORTAL END -->
+
+
+<script>
+(function(){
+  const overlay=document.getElementById("vyStudentOverlay");
+  const entry=document.getElementById("vyStudentEntry");
+  if(!overlay) return;
+
+  function hideStudent(){
+    overlay.classList.remove("open");
+    overlay.setAttribute("aria-hidden","true");
+  }
+
+  // Any navigation link whose label/href indicates Home returns to the homepage
+  // and closes the student portal.
+  document.querySelectorAll("a").forEach(function(a){
+    const text=(a.textContent||"").trim().toLowerCase();
+    const href=(a.getAttribute("href")||"").toLowerCase();
+    if(text==="home" || href==="#" || href==="./" || href==="index.html" || href==="/"){
+      a.addEventListener("click",function(){ hideStudent(); });
+    }
+  });
+
+  // Browser back/forward should also never leave the student modal visible
+  // when the homepage is active.
+  window.addEventListener("hashchange",function(){
+    if(location.hash==="" || location.hash==="#home") hideStudent();
+  });
+
+  // Clicking outside the modal already closes it; Home button should also
+  // work if it is dynamically added later.
+  document.addEventListener("click",function(e){
+    const a=e.target.closest && e.target.closest("a");
+    if(!a) return;
+    const text=(a.textContent||"").trim().toLowerCase();
+    if(text==="home") hideStudent();
+  });
+})();
+</script>
+
+
+<!-- VIGYANYANTRA HOME CLOSE STUDENT START -->
+<script>
+(function(){
+  function closeStudentPortal(){
+    const portal=document.getElementById("vyStudentOverlay");
+    if(portal){
+      portal.classList.remove("open");
+      portal.setAttribute("aria-hidden","true");
+    }
+  }
+
+  function wireHomeLinks(){
+    document.querySelectorAll("a,button").forEach(function(el){
+      const text=(el.textContent||"").trim().toLowerCase();
+      const href=(el.getAttribute("href")||"").trim().toLowerCase();
+      const isHome=text==="home" || href==="#" || href==="index.html" ||
+                    href==="./" || href==="/" || href==="/index.html";
+      if(isHome && !el.dataset.vyHomeWired){
+        el.dataset.vyHomeWired="1";
+        el.addEventListener("click",closeStudentPortal);
+      }
+    });
+  }
+
+  wireHomeLinks();
+  document.addEventListener("DOMContentLoaded",wireHomeLinks);
+  window.addEventListener("hashchange",function(){
+    if(location.hash==="" || location.hash==="#home") closeStudentPortal();
+  });
+})();
+</script>
+<!-- VIGYANYANTRA HOME CLOSE STUDENT END -->
+
+
+
+
+</body></html>
